@@ -31,6 +31,25 @@ function resolveUserPermissions(models, id) {
 
 export const resolvers = {
   Query: {
+    user: (_, { id }, models) => {
+      return models.user.findById(id, {
+        include: { model: models.userType, as: 'userType' },
+        attributes: ['userType.tableName', 'id'],
+        raw: true
+      }).then((userType) => {
+        return models[userType.tableName]
+          .find({ where: { userID: userType.id }, include: models.user })
+          .then((all) => {
+            console.log(all);
+            if (all) {
+              let data = flatData(all, 'user');
+              data.userType = userType.tableName;
+              return data;
+            }
+          });
+      });
+    },
+
     parent: (_, { id }, models) => {
       return models.parent
         .findById(id, { include: models.user })
@@ -177,7 +196,7 @@ export const resolvers = {
       return permissionGroup.getUsers().then((users) => {
         return users.map(user => {
           return models.userType.findAll().then(types => {
-            user.userType = find(types, {id: user.userTypeId}).tableName;
+            user.userType = find(types, { id: user.userTypeId }).tableName;
             return user;
           });
 
@@ -186,14 +205,9 @@ export const resolvers = {
     }
   },
 
-  UserType: {
+  User: {
     __resolveType(obj, context, info) {
-      if (obj.parent)
-        return 'Parent'
-      else if (obj.staff)
-        return 'Staff'
-      else if (obj.student)
-        return 'Student'
+      return obj.userType.replace(obj.userType[0], obj.userType[0].toUpperCase());
     }
   },
 
@@ -204,8 +218,8 @@ export const resolvers = {
           email: args.email,
           password: md5(args.password)
         },
-        include: models.userType,
-        attributes: ['user_type.tableName', 'id'],
+        include: { model: models.userType, as: 'userType' },
+        attributes: ['userType.tableName', 'id'],
         raw: true
       }).then((userType) => {
         return models[userType.tableName]

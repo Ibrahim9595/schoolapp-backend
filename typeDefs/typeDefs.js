@@ -59,40 +59,49 @@ let Mutation = `
 
 export const typeDefs = `
 
-  type GenericUser{
-    id: Int!
-    name: String!
-    email: String!
-    userTypeId: Int!
-    userType: String!
-  }
-
-  type Parent {
+  interface User{
     id: Int!
     userId: Int!
     name: String!
     email: String!
+    userTypeId: Int!
+    userType: String!
+    permissionGroups: [PermissionGroup]
+    permissions: [Permission]
+  }
+
+  type Parent implements User {
+    id: Int!
+    userId: Int!
+    name: String!
+    email: String!
+    userTypeId: Int!
+    userType: String!
     job: String!
     children: [Student]!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
   }
 
-  type Student {
+  type Student implements User {
     id: Int!
     userId: Int!
     name: String!
     email: String!
+    userTypeId: Int!
+    userType: String!
     parent: Parent!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
   }
 
-  type Staff {
+  type Staff implements User {
     id: Int!
     userId: Int!
     name: String!
     email: String!
+    userTypeId: Int!
+    userType: String!
     job: String!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
@@ -110,11 +119,12 @@ export const typeDefs = `
     groupName: String!
     description: String!
     permissions: [Permission]
-    users: [GenericUser]
+    users: [User]
   }
 
   # the schema allows the following query:
   type Query {
+    user(id: Int!): User
     parent(id: Int!): Parent
     parents: [Parent]
     student(id: Int!): Student
