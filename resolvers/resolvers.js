@@ -50,6 +50,19 @@ export const resolvers = {
       });
     },
 
+    users: (_, $, models) => {
+      return models.user.findAll({
+        include: { model: models.userType, as: 'userType' },
+        raw: true
+      }).then((users) => { 
+        return users.map(user => {
+          user.userType = user['userType.tableName'];
+          user.userId = user.id;
+          return user;
+        });
+      });
+    },
+
     parent: (_, { id }, models) => {
       return models.parent
         .findById(id, { include: models.user })

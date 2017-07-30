@@ -125,6 +125,7 @@ export const typeDefs = `
   # the schema allows the following query:
   type Query {
     user(id: Int!): User
+    users: [User]
     parent(id: Int!): Parent
     parents: [Parent]
     student(id: Int!): Student
