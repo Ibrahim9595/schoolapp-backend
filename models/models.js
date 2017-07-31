@@ -9,6 +9,11 @@ import { Permission } from './permission';
 import { Student } from './student'
 import { Staff } from './staff';
 import { Parent } from './parent';
+import { Class } from './class';
+import { ClassStudentSelector } from './classStudentSelector';
+import { Subject } from './subject';
+import { Level } from './level';
+import { ClassSubjectStaffSelector } from './classSubjectStaffSelector';
 
 export const models = {
     user: User,
@@ -20,13 +25,20 @@ export const models = {
     student: Student,
     parent: Parent,
     staff: Staff, 
+    class: Class,
+    classStudentSelector: ClassStudentSelector,
+    classSubjectStaffSelector: ClassSubjectStaffSelector,
+    subject: Subject,
+    level: Level,
     sequelize: sequelize
-};
+}
 
-// sequelize.sync()
+// console.log(models);
 
 for(let i in models) {
     if(!(i.match('Selector') || i == 'sequelize')){
-        models[i].associate(models);
+        models[i].associate(models);  
     }
 }
+
+// sequelize.sync({force: true})

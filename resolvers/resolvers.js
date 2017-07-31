@@ -31,6 +31,7 @@ function resolveUserPermissions(models, id) {
 
 export const resolvers = {
   Query: {
+    //System Users & permission
     user: (_, { id }, models) => {
       return models.user.findById(id, {
         include: { model: models.userType, as: 'userType' },
@@ -54,7 +55,7 @@ export const resolvers = {
       return models.user.findAll({
         include: { model: models.userType, as: 'userType' },
         raw: true
-      }).then((users) => { 
+      }).then((users) => {
         return users.map(user => {
           user.userType = user['userType.tableName'];
           user.userId = user.id;
@@ -134,10 +135,51 @@ export const resolvers = {
 
     permissionGroups: (_, $, models) => {
       return models.permissionGroup.findAll();
-    }
+    },
 
+    //System levels & subjects
+    levels: (_, args, models) => {
+      return models.level.findAll({order: ['priority']});
+    },
+
+    level: (_, args, models) => {
+      return models.level.findById(args.id,
+        { include: { model: models.student, include: models.user } })
+        .then(data => {
+          data.students = data.students.map(student => {
+            return flatData(student, 'user');
+          });
+
+          return data;
+        });
+    },
+
+    classes: (_, args, models) => {
+      return models.class.findAll();
+    },
+
+    class: (_, args, models) => {
+      return models.class.findById(args.id,
+        { include: { model: models.student, include: models.user } })
+        .then(data => {
+          data.students = data.students.map(student => {
+            return flatData(student, 'user');
+          });
+
+          return data;
+        });
+    },
+
+    subjects: (_, args, models) => {
+      return models.subject.findAll();
+    },
+
+    subject: (_, args, models) => {
+      return models.subject.findById(args.id);
+    }
   },
 
+  //System Users & permissions
   Student: {
     parent: (student, _, models) => {
       return student
@@ -150,6 +192,10 @@ export const resolvers = {
 
     permissionGroups: (student, _, models) => {
       return student.user.getPermissions();
+    },
+
+    class: (student) => {
+      return student.getClasses().then((classes) => classes[0]);
     },
 
     permissions: (student, _, models) => {
@@ -224,7 +270,31 @@ export const resolvers = {
     }
   },
 
+  //System levels & subjects
+  Level: {
+    subjects: (level) => {
+      return level.getSubjects();
+    },
+
+    classes: (level) => {
+      return level.getClasses();
+    }
+  },
+
+  Class: {
+    level: (Class) => {
+      return Class.getLevel();
+    }
+  },
+
+  Subject: {
+    level: (subject) => {
+      return subject.getLevel();
+    }
+  },
+
   Mutation: {
+    //System Users & permissions
     login: (_, args, models) => {
       return models.user.find({
         where: {
@@ -274,7 +344,12 @@ export const resolvers = {
           user.parent = args.parent;
           user.userTypeId = id.id;
           user.password = md5(user.password);
-          return models.user.create(user, { include: models.parent });
+          return models.user.create(user, { include: models.parent }).then((user) => {
+            let parent = user.parent;
+            parent.dataValues.user = user;
+            parent.userId = user.id;
+            return flatData(parent, 'user');
+          });
         });
     },
 
@@ -290,7 +365,12 @@ export const resolvers = {
           user.student = args.student
           user.userTypeId = id.id;
           user.password = md5(user.password);
-          return models.user.create(user, { include: models.student })
+          return models.user.create(user, { include: models.student }).then((user) => {
+            let student = user.student;
+            student.dataValues.user = user;
+            student.userId = user.id;
+            return flatData(student, 'user');
+          });
         });
     },
 
@@ -306,7 +386,12 @@ export const resolvers = {
           user.staff = args.staff
           user.userTypeId = id.id;
           user.password = md5(user.password);
-          return models.user.create(user, { include: models.staff })
+          return models.user.create(user, { include: models.staff }).then((user) => {
+            let staff = user.staff;
+            staff.dataValues.user = user;
+            staff.userId = user.id;
+            return flatData(staff, 'user');
+          });
         });
     },
 
@@ -401,6 +486,77 @@ export const resolvers = {
     deleteUserFromPermissionGroup: (_, args, models) => {
       return models.userGroupSelector
         .destroy({ where: { userId: args.userId, permissionGroupId: args.permissionGroupId } });
+    },
+
+    //System levels & subjects
+    createLevel: (_, args, models) => {
+      return models.level.create(args.level);
+    },
+
+    updateLevel: (_, args, models) => {
+      return models.level.update(args.level, { where: { id: args.id } });
+    },
+
+    deleteLevel: (_, args, models) => {
+      return models.level.destroy({ where: { id: args.id } });
+    },
+
+    createClass: (_, args, models) => {
+      return models.class.create(args.class);
+    },
+
+    updateClass: (_, args, models) => {
+      return models.class.update(args.class, { where: { id: args.id } });
+    },
+
+    deleteClass: (_, args, models) => {
+      return models.class.destroy({ where: { id: args.id } });
+    },
+
+    createSubject: (_, args, models) => {
+      return models.subject.create(args.subject);
+    },
+
+    updateSubject: (_, args, models) => {
+      return models.subject.update(args.subject, { where: { id: args.id } });
+    },
+
+    deleteSubject: (_, args, models) => {
+      return models.subject.destroy({ where: { id: args.id } });
+    },
+
+    appendStudentsToClass: (_, args, models) => {
+
+      let data = args.studentsId.map((studentId) => {
+        return { studentId, classId: args.classId };
+      });
+
+      return models.classStudentSelector.bulkCreate(data);
+    },
+
+    updateStudentClass: (_, args, models) => {
+      return models.classStudentSelector.update(args, { where: { studentId: args.studentId } });
+    },
+
+    updateSubjectStaffToClass: (_, args, models) => {
+      return models.classSubjectStaffSelector.destroy({ where: { classId: args.classId } }).then(() => {
+        let data = args.subjectStaff.map((subjectStaff) => {
+          if(new Date(subjectStaff.timeStart).getTime() > new Date(subjectStaff.timeEnd).getTime())
+            throw new Error("start time must be smaller than end time");
+
+          return {
+            subjectId: subjectStaff.subjectId,
+            staffId: subjectStaff.staffId,
+            classId: args.classId,
+            timeStart: subjectStaff.timeStart,
+            timeEnd: subjectStaff.timeEnd,
+            day: subjectStaff.day,
+          };
+        });
+
+        return models.classSubjectStaffSelector.bulkCreate(data);
+      })
+
     }
 
   }

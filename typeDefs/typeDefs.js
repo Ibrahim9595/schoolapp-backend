@@ -9,6 +9,7 @@ let Mutation = `
   #input type definion for parent
   input StudentInput {
     parentId: Int
+    levelId: Int!
   }
 
   #input type definion for parent
@@ -33,11 +34,41 @@ let Mutation = `
     password: String
   }
 
+  input LevelInput {
+      id: Int
+      name: String!
+      priority: Int!
+  }
+
+  input ClassInput {
+    id: Int
+    name: String!
+    levelId: Int!
+    capacity: Int!
+    minGrade: Int
+  }
+
+  input SubjectInput {
+    id: Int
+    name: String!
+    details: String!
+    syllabus: String!
+    levelId: Int!
+  }
+
+  input subjectStaffInput {
+    staffId: Int!
+    subjectId: Int!
+    timeStart: String!
+    timeEnd: String!
+    day: String!
+  }
+
   # this schema allows the following mutation:
   type Mutation {
-    createParent(user:UserInputAdd!, parent: ParentInput!): Boolean!
-    createStudent(user:UserInputAdd!, student: StudentInput): Boolean!
-    createStaff(user:UserInputAdd!, staff: StaffInput!): Boolean!
+    createParent(user:UserInputAdd!, parent: ParentInput!): Parent!
+    createStudent(user:UserInputAdd!, student: StudentInput): Student!
+    createStaff(user:UserInputAdd!, staff: StaffInput!): Staff!
     updateParent(id: Int!, user: UserInputUpdate!, parent: ParentInput!): Boolean!
     updateStudent(id: Int!, user: UserInputUpdate!, student: StudentInput): Boolean!
     updateStaff(id: Int!, user: UserInputUpdate!, staff: StaffInput!): Boolean!
@@ -51,8 +82,21 @@ let Mutation = `
     addUserToPermissionGroup(userId: Int!, permissionGroupId: Int!): Boolean!
     deleteUserFromPermissionGroup(userId: Int!, permissionGroupId: Int!): Boolean!
     login(email: String!, password: String) : String!
-  }
-  `;
+    
+    #System levels & subject
+    createLevel(level: LevelInput!): Level!
+    updateLevel(id: Int!, level: LevelInput!): Boolean!
+    deleteLevel(id: Int!): Boolean!
+    createClass(class: ClassInput!): Class!
+    updateClass(id: Int!, class: ClassInput!): Boolean!
+    deleteClass(id: Int!): Boolean!
+    createSubject(subject: SubjectInput!): Subject!
+    updateSubject(id: Int!, subject: SubjectInput!): Boolean!
+    deleteSubject(id: Int!): Boolean!
+    appendStudentsToClass(studentsId: [Int]!, classId: Int!): Boolean!
+    updateStudentClass(studentId: Int!, classId: Int!): Boolean!
+    updateSubjectStaffToClass(classId: Int!, subjectStaff: [subjectStaffInput]!): Boolean!
+  }`;
 
 
 //Base query
@@ -65,7 +109,7 @@ export const typeDefs = `
     name: String!
     email: String!
     userTypeId: Int!
-    userType: String!
+    userType: String
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
   }
@@ -76,7 +120,7 @@ export const typeDefs = `
     name: String!
     email: String!
     userTypeId: Int!
-    userType: String!
+    userType: String
     job: String!
     children: [Student]!
     permissionGroups: [PermissionGroup]
@@ -89,10 +133,12 @@ export const typeDefs = `
     name: String!
     email: String!
     userTypeId: Int!
-    userType: String!
+    userType: String
     parent: Parent!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
+    levelId: Int!
+    class: Class!
   }
 
   type Staff implements User {
@@ -101,7 +147,7 @@ export const typeDefs = `
     name: String!
     email: String!
     userTypeId: Int!
-    userType: String!
+    userType: String
     job: String!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
@@ -122,6 +168,35 @@ export const typeDefs = `
     users: [User]
   }
 
+  #System levels & subjects 
+  type Level{
+    id: Int!
+    name: String!
+    priority: Int!
+    subjects: [Subject]!
+    classes: [Class]!
+    students: [Student]
+  }
+
+  type Class {
+    id: Int!
+     name: String!
+    levelId: Int!
+    capacity: Int!
+    minGrade: Int
+    level: Level
+    students: [Student]
+  }
+
+  type Subject {
+    id: Int!
+    name: String!
+    details: String!
+    syllabus: String!
+    levelId: Int!
+    level: Level
+  }
+
   # the schema allows the following query:
   type Query {
     user(id: Int!): User
@@ -135,6 +210,13 @@ export const typeDefs = `
     permissions: [Permission]
     permissionGroup(id: Int!): PermissionGroup
     permissionGroups: [PermissionGroup]
+    #System levels & subjects
+    levels: [Level!]!
+    level(id: Int!): Level
+    classes: [Class!]!
+    class(id: Int!): Class
+    subjects: [Subject!]!
+    subject(id: Int!): Subject 
   }
 
-`+Mutation;
+`+ Mutation;
