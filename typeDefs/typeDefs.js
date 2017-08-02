@@ -152,7 +152,7 @@ export const typeDefs = `
     job: String!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
-    timeTable: [[StaffTimeTableElement]]
+    timeTable: [[StaffTimeTableElement!]!]!
   }
 
   type Permission {
@@ -188,7 +188,7 @@ export const typeDefs = `
     minGrade: Int
     level: Level
     students: [Student]
-    timeTable: [[ClassTimeTableElement!]]
+    timeTable: [[ClassTimeTableElement!]!]!
   }
 
   type Subject {
