@@ -1,6 +1,6 @@
 import md5 from 'md5';
 import jwt from 'jsonwebtoken';
-import { find } from 'lodash';
+import { find, groupBy } from 'lodash';
 
 function flatData(obj, key) {
   let inside = obj.dataValues[key].dataValues;
@@ -139,7 +139,7 @@ export const resolvers = {
 
     //System levels & subjects
     levels: (_, args, models) => {
-      return models.level.findAll({order: ['priority']});
+      return models.level.findAll({ order: ['priority'] });
     },
 
     level: (_, args, models) => {
@@ -237,7 +237,23 @@ export const resolvers = {
       return resolveUserPermissions(models, staff.userId).then(data => {
         return data[0];
       });
+    },
+
+    timeTable: (staff, _, models) => {
+      return staff.getTimeTableElements({
+        include: [models.subject, models.class],
+        order: ['dayNum', 'timeStart']
+      })
+        .then((timeTableElements) => {
+          let days = groupBy(timeTableElements, 'dayNum');
+          let dayTimeTable = [];
+          for (let i in days) {
+            dayTimeTable[parseInt(i)] = days[i];
+          }
+          return dayTimeTable;
+        });
     }
+
   },
 
   PermissionGroup: {
@@ -284,7 +300,30 @@ export const resolvers = {
   Class: {
     level: (Class) => {
       return Class.getLevel();
+    },
+
+    timeTable: (Class, _, models) => {
+      return Class.getTimeTableElements({
+        include: [models.subject, {model: models.staff, include: models.user}],
+        order: ['dayNum', 'timeStart']
+      })
+        .then((timeTableElements) => {
+          timeTableElements.map(timeTableElement=>{
+            timeTableElement.teacher = flatData(timeTableElement.staff, 'user');
+            delete timeTableElement.staff
+          });
+          
+          let days = groupBy(timeTableElements, 'dayNum');
+          let dayTimeTable = [];
+
+          for (let i in days) {
+            dayTimeTable[parseInt(i)] = days[i];
+          }
+          console.log(dayTimeTable);
+          return dayTimeTable;
+        });
     }
+
   },
 
   Subject: {
@@ -538,10 +577,10 @@ export const resolvers = {
       return models.classStudentSelector.update(args, { where: { studentId: args.studentId } });
     },
 
-    updateSubjectStaffToClass: (_, args, models) => {
+    updateTimeTable: (_, args, models) => {
       return models.classSubjectStaffSelector.destroy({ where: { classId: args.classId } }).then(() => {
         let data = args.subjectStaff.map((subjectStaff) => {
-          if(new Date(subjectStaff.timeStart).getTime() > new Date(subjectStaff.timeEnd).getTime())
+          if (new Date(subjectStaff.timeStart).getTime() > new Date(subjectStaff.timeEnd).getTime())
             throw new Error("start time must be smaller than end time");
 
           return {

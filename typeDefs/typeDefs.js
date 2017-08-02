@@ -62,6 +62,7 @@ let Mutation = `
     timeStart: String!
     timeEnd: String!
     day: String!
+    dayNum: Int!
   }
 
   # this schema allows the following mutation:
@@ -95,7 +96,7 @@ let Mutation = `
     deleteSubject(id: Int!): Boolean!
     appendStudentsToClass(studentsId: [Int]!, classId: Int!): Boolean!
     updateStudentClass(studentId: Int!, classId: Int!): Boolean!
-    updateSubjectStaffToClass(classId: Int!, subjectStaff: [subjectStaffInput]!): Boolean!
+    updateTimeTable(classId: Int!, subjectStaff: [subjectStaffInput]!): Boolean!
   }`;
 
 
@@ -151,6 +152,7 @@ export const typeDefs = `
     job: String!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
+    timeTable: [[StaffTimeTableElement]]
   }
 
   type Permission {
@@ -186,6 +188,7 @@ export const typeDefs = `
     minGrade: Int
     level: Level
     students: [Student]
+    timeTable: [[ClassTimeTableElement!]]
   }
 
   type Subject {
@@ -195,6 +198,24 @@ export const typeDefs = `
     syllabus: String!
     levelId: Int!
     level: Level
+  }
+
+  type ClassTimeTableElement {
+    teacher: Staff!
+    subject: Subject!
+    timeStart: String!
+    timeEnd: String!
+    dayNum: Int!
+    day: String!
+  }
+
+  type StaffTimeTableElement {
+    class: Class!
+    subject: Subject!
+    timeStart: String!
+    timeEnd: String!
+    dayNum: Int!
+    day: String!
   }
 
   # the schema allows the following query:

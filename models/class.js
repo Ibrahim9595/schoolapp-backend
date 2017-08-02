@@ -19,7 +19,7 @@ export const Class = sequelize.define('class', {
 
 Class.associate = (models) => {
     Class.belongsToMany(models.student , { through: models.classStudentSelector});
-    Class.hasMany(models.classSubjectStaffSelector, {as:'TimeTable'});
+    Class.hasMany(models.classSubjectStaffSelector, {as: 'timeTableElements'});
     models.classSubjectStaffSelector.belongsTo(Class);
     Class.belongsTo(models.level, {
         'constraints': true,
