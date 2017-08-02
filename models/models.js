@@ -14,6 +14,7 @@ import { ClassStudentSelector } from './classStudentSelector';
 import { Subject } from './subject';
 import { Level } from './level';
 import { ClassSubjectStaffSelector } from './classSubjectStaffSelector';
+import { AbsenceReason } from './absenceReason';
 import { SpecializationSelector } from './specializationSelector';
 
 export const models = {
@@ -32,6 +33,7 @@ export const models = {
     subject: Subject,
     level: Level,
     specializationSelector: SpecializationSelector,
+    absenceReason: AbsenceReason,
     sequelize: sequelize
 }
 

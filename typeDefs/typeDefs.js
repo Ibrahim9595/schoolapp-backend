@@ -98,6 +98,7 @@ let Mutation = `
     updateStudentClass(studentId: Int!, classId: Int!): Boolean!
     updateTimeTable(classId: Int!, subjectStaff: [subjectStaffInput]!): Boolean!
     appendTeacherSpecialization(staffId: Int!, subjectId: Int!, rate: String): Boolean!
+    createAbsenceReason(name: String!, description: String!): AbsenceReason!
   }`;
 
 
@@ -204,6 +205,7 @@ export const typeDefs = `
   }
 
   type ClassTimeTableElement {
+    id: Int!
     teacher: Staff!
     subject: Subject!
     timeStart: String!
@@ -213,12 +215,19 @@ export const typeDefs = `
   }
 
   type StaffTimeTableElement {
+    id: Int!
     class: Class!
     subject: Subject!
     timeStart: String!
     timeEnd: String!
     dayNum: Int!
     day: String!
+  }
+
+  type AbsenceReason {
+    id: Int!
+    name: String!
+    description: String!
   }
 
   # the schema allows the following query:
@@ -241,6 +250,7 @@ export const typeDefs = `
     class(id: Int!): Class
     subjects: [Subject!]!
     subject(id: Int!): Subject 
+    absenceReasons: [AbsenceReason!]!
   }
 
 `+ Mutation;

@@ -176,6 +176,10 @@ export const resolvers = {
 
     subject: (_, args, models) => {
       return models.subject.findById(args.id);
+    },
+
+    absenceReasons: (_, args, models) => {
+      return models.absenceReason.findAll();
     }
   },
 
@@ -619,6 +623,10 @@ export const resolvers = {
 
     appendTeacherSpecialization: (_, args, models) => {
       return models.specializationSelector.create(args);
+    },
+
+    createAbsenceReason: (_, args, models) => {
+      return models.absenceReason.create(args);
     }
 
   }
