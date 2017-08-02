@@ -15,6 +15,7 @@ export const Staff = sequelize.define('staff', {
 
 Staff.associate = (models) => {
     Staff.belongsTo(models.user);
+    Staff.belongsToMany(models.subject, { through: models.specializationSelector });
     Staff.hasMany(models.classSubjectStaffSelector, {as: "timeTableElements"});
     models.classSubjectStaffSelector.belongsTo(Staff);
 };

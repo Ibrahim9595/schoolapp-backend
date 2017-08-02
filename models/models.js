@@ -14,6 +14,7 @@ import { ClassStudentSelector } from './classStudentSelector';
 import { Subject } from './subject';
 import { Level } from './level';
 import { ClassSubjectStaffSelector } from './classSubjectStaffSelector';
+import { SpecializationSelector } from './specializationSelector';
 
 export const models = {
     user: User,
@@ -30,6 +31,7 @@ export const models = {
     classSubjectStaffSelector: ClassSubjectStaffSelector,
     subject: Subject,
     level: Level,
+    specializationSelector: SpecializationSelector,
     sequelize: sequelize
 }
 
@@ -41,4 +43,4 @@ for(let i in models) {
     }
 }
 
-// sequelize.sync({force: true})
+// sequelize.sync()

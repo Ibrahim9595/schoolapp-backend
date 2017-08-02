@@ -97,6 +97,7 @@ let Mutation = `
     appendStudentsToClass(studentsId: [Int]!, classId: Int!): Boolean!
     updateStudentClass(studentId: Int!, classId: Int!): Boolean!
     updateTimeTable(classId: Int!, subjectStaff: [subjectStaffInput]!): Boolean!
+    appendTeacherSpecialization(staffId: Int!, subjectId: Int!, rate: String): Boolean!
   }`;
 
 
@@ -153,6 +154,7 @@ export const typeDefs = `
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
     timeTable: [[StaffTimeTableElement!]!]!
+    subjects: [Subject!]!
   }
 
   type Permission {
@@ -198,6 +200,7 @@ export const typeDefs = `
     syllabus: String!
     levelId: Int!
     level: Level
+    staff: [Staff!]!
   }
 
   type ClassTimeTableElement {

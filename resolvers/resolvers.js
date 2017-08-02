@@ -252,6 +252,10 @@ export const resolvers = {
           }
           return dayTimeTable;
         });
+    },
+
+    subjects: (staff, _, models) => {
+      return staff.getSubjects();
     }
 
   },
@@ -304,15 +308,15 @@ export const resolvers = {
 
     timeTable: (Class, _, models) => {
       return Class.getTimeTableElements({
-        include: [models.subject, {model: models.staff, include: models.user}],
+        include: [models.subject, { model: models.staff, include: models.user }],
         order: ['dayNum', 'timeStart']
       })
         .then((timeTableElements) => {
-          timeTableElements.map(timeTableElement=>{
+          timeTableElements.map(timeTableElement => {
             timeTableElement.teacher = flatData(timeTableElement.staff, 'user');
             delete timeTableElement.staff
           });
-          
+
           let days = groupBy(timeTableElements, 'dayNum');
           let dayTimeTable = [];
 
@@ -329,6 +333,21 @@ export const resolvers = {
   Subject: {
     level: (subject) => {
       return subject.getLevel();
+    },
+
+    staff: (subject, _, models) => {
+      return models.subject.findById(subject.id,
+        {
+          include: {
+            model: models.staff, include: models.user
+          }
+        }).then(subject => {
+          subject.staffs.map(staff => {
+            staff = flatData(staff, 'user');
+          });
+
+          return subject.staffs;
+        });
     }
   },
 
@@ -596,6 +615,10 @@ export const resolvers = {
         return models.classSubjectStaffSelector.bulkCreate(data);
       })
 
+    },
+
+    appendTeacherSpecialization: (_, args, models) => {
+      return models.specializationSelector.create(args);
     }
 
   }

@@ -19,6 +19,7 @@ export const Subject = sequelize.define('subject', {
 
 Subject.associate = (models) => {
     Subject.hasMany(models.classSubjectStaffSelector, {as:'timeTable'});
+    Subject.belongsToMany(models.staff, { through: models.specializationSelector });
     models.classSubjectStaffSelector.belongsTo(Subject);
     Subject.belongsTo(models.level);
 }
