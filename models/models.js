@@ -15,6 +15,9 @@ import { Subject } from './subject';
 import { Level } from './level';
 import { ClassSubjectStaffSelector } from './classSubjectStaffSelector';
 import { AbsenceReason } from './absenceReason';
+import { AbsenceDay } from './absenceDay';
+import { AssignmentType } from './assignmentType';
+import { Assignment } from './assignment';
 import { SpecializationSelector } from './specializationSelector';
 
 export const models = {
@@ -34,6 +37,9 @@ export const models = {
     level: Level,
     specializationSelector: SpecializationSelector,
     absenceReason: AbsenceReason,
+    absenceDay: AbsenceDay,
+    assignmentType: AssignmentType,
+    assignment: Assignment,
     sequelize: sequelize
 }
 
@@ -45,4 +51,4 @@ for(let i in models) {
     }
 }
 
-// sequelize.sync()
+// Assignment.sync({force: true})

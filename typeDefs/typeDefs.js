@@ -65,6 +65,12 @@ let Mutation = `
     dayNum: Int!
   }
 
+  input AbsentStudent { 
+    studentId: Int!
+    absenceReasonId: Int!,
+    notes: String
+  }
+
   # this schema allows the following mutation:
   type Mutation {
     createParent(user:UserInputAdd!, parent: ParentInput!): Parent!
@@ -99,6 +105,38 @@ let Mutation = `
     updateTimeTable(classId: Int!, subjectStaff: [subjectStaffInput]!): Boolean!
     appendTeacherSpecialization(staffId: Int!, subjectId: Int!, rate: String): Boolean!
     createAbsenceReason(name: String!, description: String!): AbsenceReason!
+    createAssignmentType(name: String!, description: String!): AssignmentType!
+    updateAssignmentType(id: Int!, name: String, description: String): Boolean!
+    deleteAssignmentType(id: Int!): Boolean!
+    appendAbsenceDay(
+      date: String!
+      classId: Int!, 
+      subjectId: Int, 
+      staffId: Int!,
+      absentStudents: [AbsentStudent!]!
+     ): Boolean!
+    createAssignment(
+      staffId: Int!,
+      classId: Int!,
+      subjectId: Int!,
+      assignmentTypeId: Int!,
+      description: String!,
+      finalScore: Int!,
+      dueDate: String!,
+      notes: String
+    ): Boolean!
+    updateAssignment(
+      id: Int!,
+      classId: Int,
+      staffId: Int,
+      subjectId: Int,
+      assignmentTypeId: Int,
+      description: String,
+      finalScore: Int,
+      dueDate: String,
+      notes: String
+    ): Boolean!
+    deleteAssignment(id: Int!): Boolean!
   }`;
 
 
@@ -156,6 +194,7 @@ export const typeDefs = `
     permissions: [Permission]
     timeTable: [[StaffTimeTableElement!]!]!
     subjects: [Subject!]!
+    classSubjects: [[StaffClassSubject!]!]!
   }
 
   type Permission {
@@ -183,7 +222,9 @@ export const typeDefs = `
     students: [Student]
   }
 
-  type Class {
+  type Class {   
+
+
     id: Int!
      name: String!
     levelId: Int!
@@ -192,6 +233,7 @@ export const typeDefs = `
     level: Level
     students: [Student]
     timeTable: [[ClassTimeTableElement!]!]!
+    classSubjects: [[ClassClassSubject!]!]!
   }
 
   type Subject {
@@ -206,12 +248,24 @@ export const typeDefs = `
 
   type ClassTimeTableElement {
     id: Int!
-    teacher: Staff!
+    staff: Staff!
     subject: Subject!
     timeStart: String!
     timeEnd: String!
     dayNum: Int!
     day: String!
+  }
+
+  type ClassClassSubject {
+    id: Int!
+    staff: Staff!
+    subject: Subject!
+  }
+
+  type StaffClassSubject {
+    id: Int!
+    subject: Subject!
+    class: Class!
   }
 
   type StaffTimeTableElement {
@@ -225,6 +279,22 @@ export const typeDefs = `
   }
 
   type AbsenceReason {
+    id: Int!
+    name: String!
+    description: String!
+  }
+
+  type AbsenceDay {
+    date: String!
+    staff: Staff!
+    class: Class!
+    subject: Subject!
+    absenceReason: AbsenceReason! 
+    student: Student
+    notes: String
+  }
+
+  type AssignmentType{
     id: Int!
     name: String!
     description: String!
@@ -251,6 +321,14 @@ export const typeDefs = `
     subjects: [Subject!]!
     subject(id: Int!): Subject 
     absenceReasons: [AbsenceReason!]!
+    absence(
+      dateStart: String!, 
+      dateEnd: String!, 
+      classId: Int, 
+      subjectId: Int, 
+      staffId: Int,
+      absenceReasonId: Int,  
+      studentId: Int): [AbsenceDay!]!
   }
 
 `+ Mutation;

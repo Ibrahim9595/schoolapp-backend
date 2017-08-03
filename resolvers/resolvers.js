@@ -1,6 +1,6 @@
 import md5 from 'md5';
 import jwt from 'jsonwebtoken';
-import { find, groupBy } from 'lodash';
+import { find, groupBy, uniqBy } from 'lodash';
 
 function flatData(obj, key) {
   let inside = obj.dataValues[key].dataValues;
@@ -180,6 +180,37 @@ export const resolvers = {
 
     absenceReasons: (_, args, models) => {
       return models.absenceReason.findAll();
+    },
+
+    absence: (_, args, models) => {
+      args.date = {
+        $gte: args.dateStart,
+        $lte: args.dateEnd
+      }
+
+      delete args.dateStart;
+      delete args.dateEnd;
+
+      return models.absenceDay.findAll({
+        where: args,
+        include: [
+          { model: models.staff, include: models.user },
+          { model: models.student, include: models.user },
+          models.absenceReason, models.class, models.subject
+        ],
+        orderBy: ['date']
+      }).then(allData => {
+        allData.map(data => {
+
+          data.student = flatData(data.student, 'user');
+          data.staff = flatData(data.staff, 'user');
+
+        });
+        /**
+         * TODO: format the result to group by category suitable for user
+        */
+        return allData;
+      });
     }
   },
 
@@ -260,8 +291,22 @@ export const resolvers = {
 
     subjects: (staff, _, models) => {
       return staff.getSubjects();
-    }
+    },
 
+    classSubjects: (staff, _, models) => {
+      return staff.getTimeTableElements({
+        include: [models.subject, models.class],
+        attributes: ['id']
+      }).then((subjects => {
+        let classes = groupBy(subjects, 'class.id');
+        let ret = [];
+        for (let c in classes) {
+          ret.push(uniqBy(classes[c], 'subject.id'));
+        }
+
+        return ret;
+      }));
+    },
   },
 
   PermissionGroup: {
@@ -317,8 +362,7 @@ export const resolvers = {
       })
         .then((timeTableElements) => {
           timeTableElements.map(timeTableElement => {
-            timeTableElement.teacher = flatData(timeTableElement.staff, 'user');
-            delete timeTableElement.staff
+            timeTableElement.staff = flatData(timeTableElement.staff, 'user');
           });
 
           let days = groupBy(timeTableElements, 'dayNum');
@@ -327,10 +371,30 @@ export const resolvers = {
           for (let i in days) {
             dayTimeTable[parseInt(i)] = days[i];
           }
-          console.log(dayTimeTable);
+
           return dayTimeTable;
         });
-    }
+    },
+
+    classSubjects: (staff, _, models) => {
+      return staff.getTimeTableElements({
+        include: [models.subject, { model: models.staff, include: models.user }],
+        attributes: ['id']
+      }).then((data => {
+        data.map(d => {
+          d.staff = flatData(d.staff, 'user');
+        });
+
+        let subjects = groupBy(data, 'subject.id');
+        let ret = [];
+
+        for (let s in subjects) {
+          ret.push(uniqBy(subjects[s], 'staff.id'));
+        }
+
+        return ret;
+      }));
+    },
 
   },
 
@@ -627,7 +691,47 @@ export const resolvers = {
 
     createAbsenceReason: (_, args, models) => {
       return models.absenceReason.create(args);
-    }
+    },
 
+    appendAbsenceDay: (_, args, models) => {
+      let absentStudents = args.absentStudents;
+      delete args.absentStudents;
+
+      absentStudents.map(absentStudent => {
+        for (let i in args) {
+          absentStudent[i] = args[i];
+        }
+      });
+
+      return models.absenceDay.destroy(
+        { where: { classId: args.classId, subjectId: args.subjectId } })
+        .then(d => {
+          return models.absenceDay.bulkCreate(absentStudents);
+        });
+    },
+
+    createAssignmentType: (_, args, models) => {
+      return models.assignmentType.create(args);
+    },
+
+    updateAssignmentType: (_, args, models) => {
+      return models.assignmentType.update(args, { where: { id: args.id } });
+    },
+
+    deleteAssignmentType: (_, args, models) => {
+      return models.assignmentType.destroy({ where: { id: args.id } });
+    },
+
+    createAssignment: (_, args, models) => {
+      return models.assignment.create(args);
+    },
+
+    updateAssignment: (_, args, models) => {
+      return models.assignment.update(args, {where: {id: args.id}});
+    },
+
+    deleteAssignment: (_, args, models) => {
+      return models.assignment.destroy(args, {where: args});
+    },
   }
 };

@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 import { sequelize } from './db';
 
-export const AbsenceReason = sequelize.define('absence_reason', {
+export const AssignmentType = sequelize.define('assignment_type', {
     name: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -15,6 +15,6 @@ export const AbsenceReason = sequelize.define('absence_reason', {
     }
 });
 
-AbsenceReason.associate = (models) => {
-    AbsenceReason.hasMany(models.absenceDay);
+AssignmentType.associate = (models) => {
+    AssignmentType.hasMany(models.assignment);
 };
