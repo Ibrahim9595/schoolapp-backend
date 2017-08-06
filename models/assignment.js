@@ -24,6 +24,12 @@ export const Assignment = sequelize.define('assignment', {
 });
 
 Assignment.associate = (models) => {
+    Assignment.hasMany(models.assignmentResult, {as: 'results'}, 
+    {
+        'constraints': true,
+        'onUpdate': 'cascade',
+        'onDelete': 'cascade',
+    });
     Assignment.belongsTo(models.staff);
     Assignment.belongsTo(models.class);
     Assignment.belongsTo(models.subject);

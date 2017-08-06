@@ -67,7 +67,14 @@ let Mutation = `
 
   input AbsentStudent { 
     studentId: Int!
-    absenceReasonId: Int!,
+    absenceReasonId: Int!
+    notes: String
+  }
+
+  input AssignmentResultInput {
+    assignmentId: Int!
+    studentId: Int!
+    score: Int!
     notes: String
   }
 
@@ -137,6 +144,11 @@ let Mutation = `
       notes: String
     ): Boolean!
     deleteAssignment(id: Int!): Boolean!
+    createAssignmentResults(results: [AssignmentResultInput]!): Boolean!
+    createMessage(senderId: Int!, recieverId: [Int!]!, body: String!): Message
+    deleteSentMessage(id: Int!): Boolean!
+    deleteRecievedMessage(id: Int!): Boolean!
+    markMessageAsSeen(id: Int!): Boolean!
   }`;
 
 
@@ -180,6 +192,7 @@ export const typeDefs = `
     permissions: [Permission]
     levelId: Int!
     class: Class!
+
   }
 
   type Staff implements User {
@@ -194,7 +207,14 @@ export const typeDefs = `
     permissions: [Permission]
     timeTable: [[StaffTimeTableElement!]!]!
     subjects: [Subject!]!
-    classSubjects: [[StaffClassSubject!]!]!
+    classSubjects: [StaffClassSubject!]!
+  }
+
+  type Massenger {
+    id: Int!
+    userId: Int!
+    name: String!
+    email: String!
   }
 
   type Permission {
@@ -222,18 +242,16 @@ export const typeDefs = `
     students: [Student]
   }
 
-  type Class {   
-
-
+  type Class { 
     id: Int!
-     name: String!
+    name: String!
     levelId: Int!
     capacity: Int!
     minGrade: Int
     level: Level
     students: [Student]
     timeTable: [[ClassTimeTableElement!]!]!
-    classSubjects: [[ClassClassSubject!]!]!
+    classSubjects: [ClassClassSubject!]!
   }
 
   type Subject {
@@ -257,14 +275,13 @@ export const typeDefs = `
   }
 
   type ClassClassSubject {
-    id: Int!
-    staff: Staff!
+    staff: [Staff!]!
     subject: Subject!
   }
 
   type StaffClassSubject {
     id: Int!
-    subject: Subject!
+    subjects: [Subject]!
     class: Class!
   }
 
@@ -300,6 +317,36 @@ export const typeDefs = `
     description: String!
   }
 
+  type Assignment {
+    staff: Staff!
+    class: Class!
+    subject: Subject!
+    assignmentType: AssignmentType!
+    description: String!
+    finalScore: Int!
+    dueDate: String!
+    notes: String
+    results(studentId: Int): [AssignmentResult!]!
+  }
+
+  type AssignmentResult {
+    notes: String!
+    score: Int!
+    student: Student!
+  }
+
+  type Message {
+    id: Int!
+    body: String!
+    sender: Massenger!
+    message_status: MessageStatus
+  }
+
+  type MessageStatus {
+    isRead: Boolean!
+    message_body: Message!
+  }
+
   # the schema allows the following query:
   type Query {
     user(id: Int!): User
@@ -328,7 +375,16 @@ export const typeDefs = `
       subjectId: Int, 
       staffId: Int,
       absenceReasonId: Int,  
-      studentId: Int): [AbsenceDay!]!
+      studentId: Int
+    ): [AbsenceDay!]!
+    assignmentTypes: [AssignmentType!]!
+    assignments(
+      classId: Int, 
+      subjectId: Int, 
+      staffId: Int,
+      assignmentTypeId: Int,  
+    ): [Assignment!]!
+    test: [MessageStatus]
   }
 
 `+ Mutation;

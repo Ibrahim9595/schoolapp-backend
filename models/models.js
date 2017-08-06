@@ -18,6 +18,9 @@ import { AbsenceReason } from './absenceReason';
 import { AbsenceDay } from './absenceDay';
 import { AssignmentType } from './assignmentType';
 import { Assignment } from './assignment';
+import { AssignmentResult } from './assignmentResult';
+import { MessageStatus } from './messageStatus';
+import { MessageBody } from './messageBody';
 import { SpecializationSelector } from './specializationSelector';
 
 export const models = {
@@ -40,6 +43,9 @@ export const models = {
     absenceDay: AbsenceDay,
     assignmentType: AssignmentType,
     assignment: Assignment,
+    assignmentResult: AssignmentResult,
+    messageBody: MessageBody,
+    messageStatus: MessageStatus,
     sequelize: sequelize
 }
 
@@ -51,4 +57,4 @@ for(let i in models) {
     }
 }
 
-// Assignment.sync({force: true})
+// sequelize.sync()

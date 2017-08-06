@@ -12,6 +12,7 @@ export const Student = sequelize.define('student', {
 
 Student.associate = (models) => {
     Student.hasMany(models.absenceDay);
+    Student.hasMany(models.assignmentResult);
     Student.belongsTo(models.user);
     Student.belongsTo(models.parent);
     Student.belongsToMany(models.class, { through: models.classStudentSelector });

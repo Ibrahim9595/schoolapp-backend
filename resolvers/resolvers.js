@@ -211,6 +211,34 @@ export const resolvers = {
         */
         return allData;
       });
+    },
+
+    assignmentTypes: (_, args, models) => {
+      return models.assignmentType.findAll();
+    },
+
+    assignments: (_, args, models) => {
+      return models.assignment.findAll({
+        include: [
+          models.assignmentType, models.class, models.subject,
+          { model: models.staff, include: models.user } 
+        ],
+        where: args
+      }).then(allData => {
+        allData.map(data => {
+          data.staff = flatData(data.staff, 'user');
+        });
+        
+        return allData;
+      });
+    },
+
+    test: (_, args, models) => {
+      return models.user.findById(4 ,{include: [{model: models.messageStatus,
+        include: [{model: models.messageBody, include: {model: models.user, as: 'sender'}} ]}]})
+      .then(body => {
+        return body.message_statuses;
+      })
     }
   },
 
@@ -301,12 +329,19 @@ export const resolvers = {
         let classes = groupBy(subjects, 'class.id');
         let ret = [];
         for (let c in classes) {
-          ret.push(uniqBy(classes[c], 'subject.id'));
+          let uniqued = uniqBy(classes[c], 'subject.id');
+          let subjects = [];
+
+          uniqued.map(u => {
+            subjects.push(u.subject);
+          });
+
+          ret.push({class: classes[c][0].class, subjects: subjects});
         }
 
         return ret;
       }));
-    },
+    }
   },
 
   PermissionGroup: {
@@ -335,7 +370,7 @@ export const resolvers = {
 
   User: {
     __resolveType(obj, context, info) {
-      return obj.userType.replace(obj.userType[0], obj.userType[0].toUpperCase());
+      return obj.userType.replace(obj.userType[0], obj.userType[0].toUpperCase()) ;
     }
   },
 
@@ -389,7 +424,14 @@ export const resolvers = {
         let ret = [];
 
         for (let s in subjects) {
-          ret.push(uniqBy(subjects[s], 'staff.id'));
+          let uniqued = uniqBy(subjects[s], 'staff.id');
+          let staff = [];
+
+          uniqued.map((u)=>{
+             staff.push(u.staff);
+          });
+          
+          ret.push({staff: staff, subject: subjects[s][0].subject});
         }
 
         return ret;
@@ -416,6 +458,24 @@ export const resolvers = {
 
           return subject.staffs;
         });
+    }
+  },
+  
+  Assignment: {
+    results: (assignment, args, models) => {
+      return assignment.getResults({
+        include: { 
+          model: models.student, 
+          include: models.user
+        },
+        where: args
+      }).then(allData => {
+        allData.map(data => {
+          data.student = flatData(data.student, 'user');
+        });
+        
+        return allData;
+      });
     }
   },
 
@@ -733,5 +793,36 @@ export const resolvers = {
     deleteAssignment: (_, args, models) => {
       return models.assignment.destroy(args, {where: args});
     },
+
+    createAssignmentResults: (_, args, models) => {
+      return models.assignmentResult.destroy({where: {assignmentId: args.results[0].assignmentId}})
+      .then(() => {
+        return models.assignmentResult.bulkCreate(args.results);
+      });
+    },
+
+    createMessage: (_, args, models) => {
+      return models.messageBody.create(args).then(message => {
+        let messageStatus = [];
+        for(let recieverId of args.recieverId){
+          messageStatus.push({messageBodyId: message.id, recieverId: recieverId});
+        }
+
+        models.messageStatus.bulkCreate(messageStatus);
+        return message;
+      });
+    },
+
+    deleteSentMessage: (_, args, models) => {
+      return models.messageBody.destroy({where: args});
+    },
+
+    deleteRecievedMessage: (_, args, models) => {
+      return models.messageStatus.destroy({where: args});
+    },
+
+    markMessageAsSeen: (_, args, models) => {
+      return models.messageStatus.update({isRead: true}, {where: args});
+    }
   }
 };

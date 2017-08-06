@@ -42,12 +42,14 @@ User.associate = (models) => {
         'onDelete': 'cascade'
     });
 
-
     User.hasOne(models.staff, {
         'constraints': true,
         'onUpdate': 'cascade',
         'onDelete': 'cascade',
     });
+
+    User.hasMany(models.messageBody, {foreignKey: 'senderId'});
+    User.hasMany(models.messageStatus, {foreignKey: 'recieverId'});
 
     User.belongsToMany(models.permissionGroup, { through: models.userGroupSelector, as: 'permissions' });
 };
