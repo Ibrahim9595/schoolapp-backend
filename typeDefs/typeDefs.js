@@ -198,6 +198,7 @@ export const typeDefs = `
     class: Class!
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
+    contactList: [User!]!
   }
 
   type Staff implements User {
@@ -215,6 +216,7 @@ export const typeDefs = `
     classSubjects: [StaffClassSubject!]!
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
+    contactList: [User!]!
   }
 
   type Massenger {
@@ -393,7 +395,7 @@ export const typeDefs = `
       staffId: Int,
       assignmentTypeId: Int,  
     ): [Assignment!]!
-    test: [RecievedMessage]
+    
   }
 
 `+ Mutation;

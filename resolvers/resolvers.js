@@ -1,18 +1,7 @@
 import md5 from 'md5';
 import jwt from 'jsonwebtoken';
 import { find, groupBy, uniqBy } from 'lodash';
-
-function flatData(obj, key) {
-  let inside = obj.dataValues[key].dataValues;
-
-  for (let i in inside) {
-    if (!obj.dataValues.hasOwnProperty(i))
-      obj[i] = inside[i]
-
-  }
-
-  return obj;
-}
+import { flatData } from '../helpers/helperMethods'
 
 function resolveUserPermissions(models, id) {
   return models.sequelize.query(`
@@ -265,6 +254,10 @@ export const resolvers = {
 
     recievedMessages: (student, _, models) => {
       return student.user.getRecievedMessages(models);
+    },
+
+    contactList: (student, _, models) => {
+      return student.getContactList(models);
     }
   },
 
@@ -357,6 +350,10 @@ export const resolvers = {
 
     recievedMessages: (staff, _, models) => {
       return staff.user.getRecievedMessages(models);
+    },
+
+    contactList: (staff, _, models) => {
+      return staff.getContactList(models);
     }
   },
 

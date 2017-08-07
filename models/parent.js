@@ -12,7 +12,10 @@ export const Parent = sequelize.define('parent', {
         type: Sequelize.STRING
     }
 });
+//Instance Method
 
+
+//Class Method
 Parent.associate = (models) => {
     Parent.belongsTo(models.user);
     Parent.hasMany(models.student, {
