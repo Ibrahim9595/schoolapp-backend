@@ -26,6 +26,30 @@ export const User = sequelize.define('users', {
     }
 });
 
+//Intstance Level Method
+User.prototype.getSentMessages = function(models) {
+    return this.getMessageBodies({
+        include: {
+            model: models.messageStatus,
+            include: {model: models.user, as: 'reciever'}
+        }
+    }).then(user => {
+        return user;
+    });
+}
+
+User.prototype.getRecievedMessages = function(models) {
+    return this.getMessageStatus({
+        include: {
+            model: models.messageBody,
+            include: {model: models.user, as: 'sender'}
+        }
+    }).then(user => {
+        return user;
+    });
+}
+
+//Class level method
 User.associate = (models) => {
 
     User.belongsTo(models.userType, {as: 'userType'});
@@ -48,8 +72,8 @@ User.associate = (models) => {
         'onDelete': 'cascade',
     });
 
-    User.hasMany(models.messageBody, {foreignKey: 'senderId'});
-    User.hasMany(models.messageStatus, {foreignKey: 'recieverId'});
+    User.hasMany(models.messageBody, {foreignKey: 'senderId', as: 'messageBodies'});
+    User.hasMany(models.messageStatus, {foreignKey: 'recieverId',  as: 'messageStatus'});
 
     User.belongsToMany(models.permissionGroup, { through: models.userGroupSelector, as: 'permissions' });
 };

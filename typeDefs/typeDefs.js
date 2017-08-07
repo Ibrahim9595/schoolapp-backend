@@ -145,7 +145,7 @@ let Mutation = `
     ): Boolean!
     deleteAssignment(id: Int!): Boolean!
     createAssignmentResults(results: [AssignmentResultInput]!): Boolean!
-    createMessage(senderId: Int!, recieverId: [Int!]!, body: String!): Message
+    createMessage(senderId: Int!, recieverId: [Int!]!, body: String!): SentMessage!
     deleteSentMessage(id: Int!): Boolean!
     deleteRecievedMessage(id: Int!): Boolean!
     markMessageAsSeen(id: Int!): Boolean!
@@ -165,6 +165,8 @@ export const typeDefs = `
     userType: String
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
+    sentMessages: [SentMessage!]!
+    recievedMessages: [RecievedMessage!]!
   }
 
   type Parent implements User {
@@ -178,6 +180,8 @@ export const typeDefs = `
     children: [Student]!
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
+    sentMessages: [SentMessage!]!
+    recievedMessages: [RecievedMessage!]!
   }
 
   type Student implements User {
@@ -192,7 +196,8 @@ export const typeDefs = `
     permissions: [Permission]
     levelId: Int!
     class: Class!
-
+    sentMessages: [SentMessage!]!
+    recievedMessages: [RecievedMessage!]!
   }
 
   type Staff implements User {
@@ -208,6 +213,8 @@ export const typeDefs = `
     timeTable: [[StaffTimeTableElement!]!]!
     subjects: [Subject!]!
     classSubjects: [StaffClassSubject!]!
+    sentMessages: [SentMessage!]!
+    recievedMessages: [RecievedMessage!]!
   }
 
   type Massenger {
@@ -334,17 +341,19 @@ export const typeDefs = `
     score: Int!
     student: Student!
   }
+  
 
-  type Message {
+  type SentMessage {
     id: Int!
     body: String!
     sender: Massenger!
-    message_status: MessageStatus
+    message_statuses: [RecievedMessage!]!
   }
 
-  type MessageStatus {
+  type RecievedMessage {
+    reciever: Massenger!
     isRead: Boolean!
-    message_body: Message!
+    message_body: SentMessage!
   }
 
   # the schema allows the following query:
@@ -384,7 +393,7 @@ export const typeDefs = `
       staffId: Int,
       assignmentTypeId: Int,  
     ): [Assignment!]!
-    test: [MessageStatus]
+    test: [RecievedMessage]
   }
 
 `+ Mutation;

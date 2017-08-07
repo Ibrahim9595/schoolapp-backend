@@ -231,14 +231,6 @@ export const resolvers = {
         
         return allData;
       });
-    },
-
-    test: (_, args, models) => {
-      return models.user.findById(4 ,{include: [{model: models.messageStatus,
-        include: [{model: models.messageBody, include: {model: models.user, as: 'sender'}} ]}]})
-      .then(body => {
-        return body.message_statuses;
-      })
     }
   },
 
@@ -265,6 +257,14 @@ export const resolvers = {
       return resolveUserPermissions(models, student.userId).then(data => {
         return data[0];
       });
+    },
+
+    sentMessages: (student, _, models) => {
+      return student.user.getSentMessages(models);
+    },
+
+    recievedMessages: (student, _, models) => {
+      return student.user.getRecievedMessages(models);
     }
   },
 
@@ -288,6 +288,14 @@ export const resolvers = {
       return resolveUserPermissions(models, parent.userId).then(data => {
         return data[0];
       });
+    },
+
+    sentMessages: (parent, _, models) => {
+      return parent.user.getSentMessages(models);
+    },
+
+    recievedMessages: (parent, _, models) => {
+      return parent.user.getRecievedMessages(models);
     }
   },
 
@@ -341,6 +349,14 @@ export const resolvers = {
 
         return ret;
       }));
+    },
+
+    sentMessages: (staff, _, models) => {
+      return staff.user.getSentMessages(models);
+    },
+
+    recievedMessages: (staff, _, models) => {
+      return staff.user.getRecievedMessages(models);
     }
   },
 
