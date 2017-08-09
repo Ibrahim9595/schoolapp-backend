@@ -361,22 +361,22 @@ export const typeDefs = `
   # the schema allows the following query:
   type Query {
     user(id: Int!): User
-    users: [User]
+    users(limit: Int, offset: Int): [User]
     parent(id: Int!): Parent
-    parents: [Parent]
+    parents(limit: Int, offset: Int): [Parent]
     student(id: Int!): Student
-    students: [Student]
+    students(limit: Int, offset: Int): [Student]
     staff(id: Int!): Staff
-    staffs: [Staff]
+    staffs(limit: Int, offset: Int): [Staff]
     permissions: [Permission]
     permissionGroup(id: Int!): PermissionGroup
-    permissionGroups: [PermissionGroup]
+    permissionGroups(limit: Int, offset: Int): [PermissionGroup]
     #System levels & subjects
     levels: [Level!]!
     level(id: Int!): Level
     classes: [Class!]!
     class(id: Int!): Class
-    subjects: [Subject!]!
+    subjects(limit: Int, offset: Int): [Subject!]!
     subject(id: Int!): Subject 
     absenceReasons: [AbsenceReason!]!
     absence(

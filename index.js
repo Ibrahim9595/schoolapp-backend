@@ -28,4 +28,4 @@ app.use('/graphql', bodyParser.json(), graphqlExpress({ schema, context: models 
 const logger = { log: (e) => console.error(e.stack) };
 addErrorLoggingToSchema(schema, logger);
 
-app.listen(PORT, ()=>{console.log(`Server is running on http://localhost:${PORT}/graphiql`)});
+app.listen(PORT, '0.0.0.0', ()=>{console.log(`Server is running on http://localhost:${PORT}/graphiql`)});

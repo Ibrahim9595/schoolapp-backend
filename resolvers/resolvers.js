@@ -40,10 +40,12 @@ export const resolvers = {
       });
     },
 
-    users: (_, $, models) => {
+    users: (_, args, models) => {
       return models.user.findAll({
         include: { model: models.userType, as: 'userType' },
-        raw: true
+        raw: true,
+        offset: args.offset,
+        limit: args.limit
       }).then((users) => {
         return users.map(user => {
           user.userType = user['userType.tableName'];
@@ -62,9 +64,13 @@ export const resolvers = {
         });
     },
 
-    parents: (_, $, models) => {
+    parents: (_, args, models) => {
       return models.parent
-        .findAll({ include: models.user })
+        .findAll({ 
+          include: models.user,  
+          offset: args.offset,
+          limit: args.limit
+        })
         .then((all) => {
           if (all)
             return all.map((a) => {
@@ -82,9 +88,13 @@ export const resolvers = {
         });
     },
 
-    students: (_, $, models) => {
+    students: (_, args, models) => {
       return models.student
-        .findAll({ include: models.user })
+        .findAll({ 
+          include: models.user,
+          offset: args.offset,
+          limit: args.limit
+        })
         .then((all) => {
           if (all)
             return all.map((a) => {
@@ -102,9 +112,13 @@ export const resolvers = {
         });
     },
 
-    staffs: (_, $, models) => {
+    staffs: (_, args, models) => {
       return models.staff
-        .findAll({ include: models.user })
+        .findAll({ 
+          include: models.user,
+          offset: args.offset,
+          limit: args.limit
+        })
         .then((all) => {
           if (all)
             return all.map((a) => {
@@ -122,8 +136,8 @@ export const resolvers = {
       return models.permissionGroup.findById(id);
     },
 
-    permissionGroups: (_, $, models) => {
-      return models.permissionGroup.findAll();
+    permissionGroups: (_, args, models) => {
+      return models.permissionGroup.findAll(args);
     },
 
     //System levels & subjects
@@ -159,8 +173,8 @@ export const resolvers = {
         });
     },
 
-    subjects: (_, args, models) => {
-      return models.subject.findAll();
+    subjects: (_, args, models) => { 
+      return models.subject.findAll(args);
     },
 
     subject: (_, args, models) => {
