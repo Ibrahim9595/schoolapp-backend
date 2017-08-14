@@ -23,6 +23,12 @@ export const User = sequelize.define('users', {
         validate: {
             is: /^[a-z0-9]{32}$/
         }
+    },
+    img: {
+        type: Sequelize.STRING
+    },
+    gender: {
+        type: Sequelize.STRING
     }
 });
 

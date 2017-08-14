@@ -8,6 +8,7 @@ import { PermissionGroupSelector } from './permissionGroupSelector';
 import { Permission } from './permission';
 import { Student } from './student'
 import { Staff } from './staff';
+import { StaffType } from './staffType';
 import { Parent } from './parent';
 import { Class } from './class';
 import { ClassStudentSelector } from './classStudentSelector';
@@ -32,7 +33,8 @@ export const models = {
     permission: Permission,
     student: Student,
     parent: Parent,
-    staff: Staff, 
+    staff: Staff,
+    staffType: StaffType, 
     class: Class,
     classStudentSelector: ClassStudentSelector,
     classSubjectStaffSelector: ClassSubjectStaffSelector,
@@ -57,4 +59,4 @@ for(let i in models) {
     }
 }
 
-// sequelize.sync()
+// sequelize.sync({force: true})

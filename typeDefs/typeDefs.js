@@ -15,6 +15,7 @@ let Mutation = `
   #input type definion for parent
   input StaffInput {
     job: String!
+    staffTypeId: Int!
   }
 
   #input for general user_add
@@ -24,6 +25,8 @@ let Mutation = `
     name: String!
     email: String!
     password: String!
+    img: String
+    gender: String!
   }
   
   #input for general user_update
@@ -32,6 +35,8 @@ let Mutation = `
     name: String
     email: String
     password: String
+    img: String
+    gender: String!
   }
 
   input LevelInput {
@@ -86,6 +91,8 @@ let Mutation = `
     updateParent(id: Int!, user: UserInputUpdate!, parent: ParentInput!): Boolean!
     updateStudent(id: Int!, user: UserInputUpdate!, student: StudentInput): Boolean!
     updateStaff(id: Int!, user: UserInputUpdate!, staff: StaffInput!): Boolean!
+    createStaffType(type: String!): StaffType!
+    updateStaffType(id: Int!, type: String!): Boolean!
     deleteUser(userId: Int!): Boolean
     createPermissionGroup(groupName: String!, description: String!): PermissionGroup!
     updatePermissionGroup(id: Int!, groupName: String, description: String): Boolean!
@@ -161,6 +168,8 @@ export const typeDefs = `
     userId: Int!
     name: String!
     email: String!
+    img: String
+    gender: String!
     userTypeId: Int!
     userType: String
     permissionGroups: [PermissionGroup]
@@ -174,6 +183,8 @@ export const typeDefs = `
     userId: Int!
     name: String!
     email: String!
+    img: String
+    gender: String!
     userTypeId: Int!
     userType: String
     job: String!
@@ -189,6 +200,8 @@ export const typeDefs = `
     userId: Int!
     name: String!
     email: String!
+    img: String
+    gender: String!
     userTypeId: Int!
     userType: String
     parent: Parent!
@@ -206,6 +219,8 @@ export const typeDefs = `
     userId: Int!
     name: String!
     email: String!
+    img: String
+    gender: String!
     userTypeId: Int!
     userType: String
     job: String!
@@ -217,6 +232,7 @@ export const typeDefs = `
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
     contactList: [User!]!
+    staff_type: StaffType!
   }
 
   type Massenger {
@@ -358,6 +374,12 @@ export const typeDefs = `
     message_body: SentMessage!
   }
 
+  type StaffType {
+    id: Int!
+    type: String!
+    staffs: [Staff!]
+  }
+
   # the schema allows the following query:
   type Query {
     user(id: Int!): User
@@ -368,6 +390,7 @@ export const typeDefs = `
     students(limit: Int, offset: Int): [Student]
     staff(id: Int!): Staff
     staffs(limit: Int, offset: Int): [Staff]
+    staffTypes: [StaffType]!
     permissions: [Permission]
     permissionGroup(id: Int!): PermissionGroup
     permissionGroups(limit: Int, offset: Int): [PermissionGroup]
@@ -395,7 +418,6 @@ export const typeDefs = `
       staffId: Int,
       assignmentTypeId: Int,  
     ): [Assignment!]!
-    
   }
 
 `+ Mutation;

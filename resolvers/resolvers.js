@@ -27,10 +27,11 @@ export const resolvers = {
         attributes: ['userType.tableName', 'id'],
         raw: true
       }).then((userType) => {
+        if(!userType)
+          return null;
         return models[userType.tableName]
           .find({ where: { userID: userType.id }, include: models.user })
           .then((all) => {
-            console.log(all);
             if (all) {
               let data = flatData(all, 'user');
               data.userType = userType.tableName;
@@ -105,8 +106,9 @@ export const resolvers = {
 
     staff: (_, { id }, models) => {
       return models.staff
-        .findById(id, { include: models.user })
+        .findById(id, { include: [models.user, models.staffType] })
         .then((all) => {
+          console.log(JSON.stringify(all, 1, 1));
           if (all)
             return flatData(all, 'user')
         });
@@ -115,7 +117,7 @@ export const resolvers = {
     staffs: (_, args, models) => {
       return models.staff
         .findAll({ 
-          include: models.user,
+          include: [models.user, models.staffType],
           offset: args.offset,
           limit: args.limit
         })
@@ -126,6 +128,24 @@ export const resolvers = {
             });
         });
 
+    },
+
+    staffTypes: (_, args, models) => {
+      return models.staffType
+      .findAll({
+        include: {
+          model: models.staff,
+          include: models.user
+        }
+      }).then(types=>{
+        types.map(type => {
+          type.staffs.map(staff => {
+            flatData(staff, 'user');
+          });
+        });
+
+        return types;
+      });
     },
 
     permissions: (_, $, models) => {
@@ -288,6 +308,7 @@ export const resolvers = {
     },
 
     permissionGroups: (parent, _, models) => {
+      console.log(parent);
       return parent.user.getPermissions();
     },
 
@@ -654,6 +675,14 @@ export const resolvers = {
           }
 
         });
+    },
+
+    createStaffType: (_, args, models) => {
+      return models.staffType.create(args);
+    },
+
+    updateStaffType: (_, args, models) => {
+      return models.staffType.update(args, {where: {id: args.id}});
     },
 
     deleteUser: (_, args, models) => {
