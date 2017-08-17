@@ -14,7 +14,7 @@ let Mutation = `
 
   #input type definion for parent
   input StaffInput {
-    job: String!
+    job: String
     staffTypeId: Int!
   }
 
@@ -93,6 +93,9 @@ let Mutation = `
     updateStaff(id: Int!, user: UserInputUpdate!, staff: StaffInput!): Boolean!
     createStaffType(type: String!): StaffType!
     updateStaffType(id: Int!, type: String!): Boolean!
+    addStaffToSubject(staffId: Int!, subjectId: Int!, rate: Int!): Boolean!
+    updateStaffToSubject(staffId: Int!, subjectId: Int!, rate: Int!): Boolean!
+    deleteStaffFromSubject(staffId: Int!, subjectId: Int!): Boolean!
     deleteUser(userId: Int!): Boolean
     createPermissionGroup(groupName: String!, description: String!): PermissionGroup!
     updatePermissionGroup(id: Int!, groupName: String, description: String): Boolean!
@@ -223,7 +226,7 @@ export const typeDefs = `
     gender: String!
     userTypeId: Int!
     userType: String
-    job: String!
+    job: String
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
     timeTable: [[StaffTimeTableElement!]!]!
@@ -232,6 +235,7 @@ export const typeDefs = `
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
     contactList: [User!]!
+    rate: String
     staff_type: StaffType!
   }
 

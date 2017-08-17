@@ -27,7 +27,7 @@ export const resolvers = {
         attributes: ['userType.tableName', 'id'],
         raw: true
       }).then((userType) => {
-        if(!userType)
+        if (!userType)
           return null;
         return models[userType.tableName]
           .find({ where: { userID: userType.id }, include: models.user })
@@ -67,8 +67,8 @@ export const resolvers = {
 
     parents: (_, args, models) => {
       return models.parent
-        .findAll({ 
-          include: models.user,  
+        .findAll({
+          include: models.user,
           offset: args.offset,
           limit: args.limit
         })
@@ -91,7 +91,7 @@ export const resolvers = {
 
     students: (_, args, models) => {
       return models.student
-        .findAll({ 
+        .findAll({
           include: models.user,
           offset: args.offset,
           limit: args.limit
@@ -108,7 +108,6 @@ export const resolvers = {
       return models.staff
         .findById(id, { include: [models.user, models.staffType] })
         .then((all) => {
-          console.log(JSON.stringify(all, 1, 1));
           if (all)
             return flatData(all, 'user')
         });
@@ -116,7 +115,7 @@ export const resolvers = {
 
     staffs: (_, args, models) => {
       return models.staff
-        .findAll({ 
+        .findAll({
           include: [models.user, models.staffType],
           offset: args.offset,
           limit: args.limit
@@ -132,20 +131,20 @@ export const resolvers = {
 
     staffTypes: (_, args, models) => {
       return models.staffType
-      .findAll({
-        include: {
-          model: models.staff,
-          include: models.user
-        }
-      }).then(types=>{
-        types.map(type => {
-          type.staffs.map(staff => {
-            flatData(staff, 'user');
+        .findAll({
+          include: {
+            model: models.staff,
+            include: models.user
+          }
+        }).then(types => {
+          types.map(type => {
+            type.staffs.map(staff => {
+              flatData(staff, 'user');
+            });
           });
-        });
 
-        return types;
-      });
+          return types;
+        });
     },
 
     permissions: (_, $, models) => {
@@ -162,12 +161,15 @@ export const resolvers = {
 
     //System levels & subjects
     levels: (_, args, models) => {
-      return models.level.findAll({ order: ['priority'] });
+      return models.level.findAll({
+        order: ['priority'],
+        include: [models.subject, models.class]
+      });
     },
 
     level: (_, args, models) => {
       return models.level.findById(args.id,
-        { include: { model: models.student, include: models.user } })
+        { include: [models.class, models.subject, { model: models.student, include: models.user }] })
         .then(data => {
           data.students = data.students.map(student => {
             return flatData(student, 'user');
@@ -185,20 +187,22 @@ export const resolvers = {
       return models.class.findById(args.id,
         { include: { model: models.student, include: models.user } })
         .then(data => {
-          data.students = data.students.map(student => {
-            return flatData(student, 'user');
-          });
+          if (data) {
+            data.students = data.students.map(student => {
+              return flatData(student, 'user');
+            });
 
-          return data;
+            return data;
+          }
         });
     },
 
-    subjects: (_, args, models) => { 
+    subjects: (_, args, models) => {
       return models.subject.findAll(args);
     },
 
     subject: (_, args, models) => {
-      return models.subject.findById(args.id);
+      return models.subject.findById(args.id, {include: models.level});
     },
 
     absenceReasons: (_, args, models) => {
@@ -244,14 +248,14 @@ export const resolvers = {
       return models.assignment.findAll({
         include: [
           models.assignmentType, models.class, models.subject,
-          { model: models.staff, include: models.user } 
+          { model: models.staff, include: models.user }
         ],
         where: args
       }).then(allData => {
         allData.map(data => {
           data.staff = flatData(data.staff, 'user');
         });
-        
+
         return allData;
       });
     }
@@ -308,7 +312,6 @@ export const resolvers = {
     },
 
     permissionGroups: (parent, _, models) => {
-      console.log(parent);
       return parent.user.getPermissions();
     },
 
@@ -372,7 +375,7 @@ export const resolvers = {
             subjects.push(u.subject);
           });
 
-          ret.push({class: classes[c][0].class, subjects: subjects});
+          ret.push({ class: classes[c][0].class, subjects: subjects });
         }
 
         return ret;
@@ -418,24 +421,15 @@ export const resolvers = {
 
   User: {
     __resolveType(obj, context, info) {
-      return obj.userType.replace(obj.userType[0], obj.userType[0].toUpperCase()) ;
+      return obj.userType.replace(obj.userType[0], obj.userType[0].toUpperCase());
     }
   },
 
   //System levels & subjects
-  Level: {
-    subjects: (level) => {
-      return level.getSubjects();
-    },
-
-    classes: (level) => {
-      return level.getClasses();
-    }
-  },
-
+  
   Class: {
-    level: (Class) => {
-      return Class.getLevel();
+    level: (Class, _, models) => {
+      return Class.getLevel({include: models.subject});
     },
 
     timeTable: (Class, _, models) => {
@@ -475,11 +469,11 @@ export const resolvers = {
           let uniqued = uniqBy(subjects[s], 'staff.id');
           let staff = [];
 
-          uniqued.map((u)=>{
-             staff.push(u.staff);
+          uniqued.map((u) => {
+            staff.push(u.staff);
           });
-          
-          ret.push({staff: staff, subject: subjects[s][0].subject});
+
+          ret.push({ staff: staff, subject: subjects[s][0].subject });
         }
 
         return ret;
@@ -497,10 +491,11 @@ export const resolvers = {
       return models.subject.findById(subject.id,
         {
           include: {
-            model: models.staff, include: models.user
+            model: models.staff, include: [models.user, models.staffType]
           }
         }).then(subject => {
           subject.staffs.map(staff => {
+            staff.rate = staff.specialization_selector.rate;
             staff = flatData(staff, 'user');
           });
 
@@ -508,12 +503,12 @@ export const resolvers = {
         });
     }
   },
-  
+
   Assignment: {
     results: (assignment, args, models) => {
       return assignment.getResults({
-        include: { 
-          model: models.student, 
+        include: {
+          model: models.student,
           include: models.user
         },
         where: args
@@ -521,7 +516,7 @@ export const resolvers = {
         allData.map(data => {
           data.student = flatData(data.student, 'user');
         });
-        
+
         return allData;
       });
     }
@@ -682,7 +677,23 @@ export const resolvers = {
     },
 
     updateStaffType: (_, args, models) => {
-      return models.staffType.update(args, {where: {id: args.id}});
+      return models.staffType.update(args, { where: { id: args.id } });
+    },
+
+    addStaffToSubject: (_, args, models) => {
+      return models.specializationSelector.create(args);
+    },
+
+    updateStaffToSubject: (_, args, models) => {
+      return models.specializationSelector.update(args, {
+        where: {staffId: args.staffId, subjectId: args.subjectId }
+      });
+    },
+
+    deleteStaffFromSubject: (_, args, models) => {
+      return models.specializationSelector.destroy({
+        where: {staffId: args.staffId, subjectId: args.subjectId }
+      });
     },
 
     deleteUser: (_, args, models) => {
@@ -843,25 +854,25 @@ export const resolvers = {
     },
 
     updateAssignment: (_, args, models) => {
-      return models.assignment.update(args, {where: {id: args.id}});
+      return models.assignment.update(args, { where: { id: args.id } });
     },
 
     deleteAssignment: (_, args, models) => {
-      return models.assignment.destroy(args, {where: args});
+      return models.assignment.destroy(args, { where: args });
     },
 
     createAssignmentResults: (_, args, models) => {
-      return models.assignmentResult.destroy({where: {assignmentId: args.results[0].assignmentId}})
-      .then(() => {
-        return models.assignmentResult.bulkCreate(args.results);
-      });
+      return models.assignmentResult.destroy({ where: { assignmentId: args.results[0].assignmentId } })
+        .then(() => {
+          return models.assignmentResult.bulkCreate(args.results);
+        });
     },
 
     createMessage: (_, args, models) => {
       return models.messageBody.create(args).then(message => {
         let messageStatus = [];
-        for(let recieverId of args.recieverId){
-          messageStatus.push({messageBodyId: message.id, recieverId: recieverId});
+        for (let recieverId of args.recieverId) {
+          messageStatus.push({ messageBodyId: message.id, recieverId: recieverId });
         }
 
         models.messageStatus.bulkCreate(messageStatus);
@@ -870,15 +881,15 @@ export const resolvers = {
     },
 
     deleteSentMessage: (_, args, models) => {
-      return models.messageBody.destroy({where: args});
+      return models.messageBody.destroy({ where: args });
     },
 
     deleteRecievedMessage: (_, args, models) => {
-      return models.messageStatus.destroy({where: args});
+      return models.messageStatus.destroy({ where: args });
     },
 
     markMessageAsSeen: (_, args, models) => {
-      return models.messageStatus.update({isRead: true}, {where: args});
+      return models.messageStatus.update({ isRead: true }, { where: args });
     }
   }
 };

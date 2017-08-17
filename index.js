@@ -22,6 +22,8 @@ const schema = makeExecutableSchema({
 
 const app = express();
 
+app.use('/uploads', express.static('uploads'));
+
 app.use(cors());
 
 app.use('/graphiql', graphiqlExpress({
@@ -46,7 +48,7 @@ app.post('/fileupload', (req, res) => {
 
   form.on('file', function (name, file) {
     res.json({
-      path: FILES_PATH + file.name
+      path: file.name
     });
 
   });
