@@ -11,12 +11,12 @@ export const ClassSubjectStaffSelector = sequelize.define('class_subject_staff_s
         allowNull: false
     },
     timeStart: {
-        type: Sequelize.DATE,
+        type: Sequelize.TIME,
         allowNull: false,
         unique: true
     },
     timeEnd: {
-        type: Sequelize.DATE,
+        type: Sequelize.TIME,
         allowNull: false,
         unique: true
     }

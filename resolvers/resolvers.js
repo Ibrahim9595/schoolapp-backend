@@ -296,6 +296,10 @@ export const resolvers = {
 
     contactList: (student, _, models) => {
       return student.getContactList(models);
+    },
+
+    count: (student , _, models) => {
+      return models.student.count();
     }
   },
 
@@ -327,6 +331,10 @@ export const resolvers = {
 
     recievedMessages: (parent, _, models) => {
       return parent.user.getRecievedMessages(models);
+    },
+    
+    count: (parent, _, models) => {
+      return models.parent.count();
     }
   },
 
@@ -392,6 +400,10 @@ export const resolvers = {
 
     contactList: (staff, _, models) => {
       return staff.getContactList(models);
+    },
+    
+    count: (staff, _, models) => {
+      return models.staff.count();
     }
   },
 
@@ -416,6 +428,10 @@ export const resolvers = {
 
         });
       });
+    },
+    
+    count: (permissionGroup, _, models) => {
+      return models.permissionGroup.count();
     }
   },
 
@@ -442,14 +458,14 @@ export const resolvers = {
             timeTableElement.staff = flatData(timeTableElement.staff, 'user');
           });
 
-          let days = groupBy(timeTableElements, 'dayNum');
-          let dayTimeTable = [];
+          // let days = groupBy(timeTableElements, 'dayNum');
+          // let dayTimeTable = [];
 
-          for (let i in days) {
-            dayTimeTable[parseInt(i)] = days[i];
-          }
+          // for (let i in days) {
+          //   dayTimeTable[parseInt(i)] = days[i];
+          // }
 
-          return dayTimeTable;
+          return timeTableElements;
         });
     },
 
@@ -480,6 +496,9 @@ export const resolvers = {
       }));
     },
 
+    count: (Class, _, models) => {
+      return models.class.count();
+    }
   },
 
   Subject: {
@@ -501,6 +520,10 @@ export const resolvers = {
 
           return subject.staffs;
         });
+    },
+
+    count: (subject, _, models) => {
+      return models.subject.count();
     }
   },
 
@@ -519,6 +542,10 @@ export const resolvers = {
 
         return allData;
       });
+    },
+
+    count: (assignment) => {
+      return models.assignment.count();
     }
   },
 

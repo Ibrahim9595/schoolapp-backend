@@ -119,7 +119,7 @@ let Mutation = `
     deleteSubject(id: Int!): Boolean!
     appendStudentsToClass(studentsId: [Int]!, classId: Int!): Boolean!
     updateStudentClass(studentId: Int!, classId: Int!): Boolean!
-    updateTimeTable(classId: Int!, subjectStaff: [subjectStaffInput]!): Boolean!
+    updateTimeTable(classId: Int!, subjectStaff: [subjectStaffInput!]!): Boolean!
     appendTeacherSpecialization(staffId: Int!, subjectId: Int!, rate: String): Boolean!
     createAbsenceReason(name: String!, description: String!): AbsenceReason!
     createAssignmentType(name: String!, description: String!): AssignmentType!
@@ -179,6 +179,7 @@ export const typeDefs = `
     permissions: [Permission]
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
+    count: Int
   }
 
   type Parent implements User {
@@ -196,6 +197,7 @@ export const typeDefs = `
     permissions: [Permission]
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
+    count: Int
   }
 
   type Student implements User {
@@ -215,6 +217,7 @@ export const typeDefs = `
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
     contactList: [User!]!
+    count: Int
   }
 
   type Staff implements User {
@@ -237,6 +240,7 @@ export const typeDefs = `
     contactList: [User!]!
     rate: String
     staff_type: StaffType!
+    count: Int
   }
 
   type Massenger {
@@ -244,6 +248,7 @@ export const typeDefs = `
     userId: Int!
     name: String!
     email: String!
+    count: Int
   }
 
   type Permission {
@@ -251,6 +256,7 @@ export const typeDefs = `
     name: String!
     route: String!
     permissionLevel: Int
+    count: Int
   }
 
   type PermissionGroup {
@@ -259,6 +265,7 @@ export const typeDefs = `
     description: String!
     permissions: [Permission]
     users: [User]
+    count: Int
   }
 
   #System levels & subjects 
@@ -269,6 +276,7 @@ export const typeDefs = `
     subjects: [Subject]!
     classes: [Class]!
     students: [Student]
+    count: Int
   }
 
   type Class { 
@@ -279,8 +287,9 @@ export const typeDefs = `
     minGrade: Int
     level: Level
     students: [Student]
-    timeTable: [[ClassTimeTableElement!]!]!
+    timeTable: [ClassTimeTableElement!]!
     classSubjects: [ClassClassSubject!]!
+    count: Int
   }
 
   type Subject {
@@ -291,6 +300,7 @@ export const typeDefs = `
     levelId: Int!
     level: Level
     staff: [Staff!]!
+    count: Int
   }
 
   type ClassTimeTableElement {
@@ -301,17 +311,20 @@ export const typeDefs = `
     timeEnd: String!
     dayNum: Int!
     day: String!
+    count: Int
   }
 
   type ClassClassSubject {
     staff: [Staff!]!
     subject: Subject!
+    count: Int
   }
 
   type StaffClassSubject {
     id: Int!
     subjects: [Subject]!
     class: Class!
+    count: Int
   }
 
   type StaffTimeTableElement {
@@ -322,12 +335,14 @@ export const typeDefs = `
     timeEnd: String!
     dayNum: Int!
     day: String!
+    count: Int
   }
 
   type AbsenceReason {
     id: Int!
     name: String!
     description: String!
+    count: Int
   }
 
   type AbsenceDay {
@@ -338,12 +353,14 @@ export const typeDefs = `
     absenceReason: AbsenceReason! 
     student: Student
     notes: String
+    count: Int
   }
 
   type AssignmentType{
     id: Int!
     name: String!
     description: String!
+    count: Int
   }
 
   type Assignment {
@@ -356,12 +373,14 @@ export const typeDefs = `
     dueDate: String!
     notes: String
     results(studentId: Int): [AssignmentResult!]!
+    count: Int
   }
 
   type AssignmentResult {
     notes: String!
     score: Int!
     student: Student!
+    count: Int
   }
   
 
@@ -370,18 +389,21 @@ export const typeDefs = `
     body: String!
     sender: Massenger!
     message_statuses: [RecievedMessage!]!
+    count: Int
   }
 
   type RecievedMessage {
     reciever: Massenger!
     isRead: Boolean!
     message_body: SentMessage!
+    count: Int
   }
 
   type StaffType {
     id: Int!
     type: String!
     staffs: [Staff!]
+    count: Int
   }
 
   # the schema allows the following query:
