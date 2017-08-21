@@ -106,7 +106,7 @@ export const resolvers = {
 
     staff: (_, { id }, models) => {
       return models.staff
-        .findById(id, { include: [models.user, models.staffType] })
+        .findById(id, { include: [models.user, {model: models.staffType, as: 'staffType'}] })
         .then((all) => {
           if (all)
             return flatData(all, 'user')
@@ -116,7 +116,7 @@ export const resolvers = {
     staffs: (_, args, models) => {
       return models.staff
         .findAll({
-          include: [models.user, models.staffType],
+          include: [models.user, {model: models.staffType, as: 'staffType'}],
           offset: args.offset,
           limit: args.limit
         })
@@ -298,6 +298,10 @@ export const resolvers = {
       return student.getContactList(models);
     },
 
+    level: (student) => {
+      return student.getLevel();
+    },
+
     count: (student , _, models) => {
       return models.student.count();
     }
@@ -401,6 +405,14 @@ export const resolvers = {
     contactList: (staff, _, models) => {
       return staff.getContactList(models);
     },
+
+    staff_type: (staff) => {
+      if(staff.staff_type){
+        return staff.staff_type;
+      }else{
+        return staff.getStaffType(); 
+      }
+    },
     
     count: (staff, _, models) => {
       return models.staff.count();
@@ -445,7 +457,14 @@ export const resolvers = {
   
   Class: {
     level: (Class, _, models) => {
-      return Class.getLevel({include: models.subject});
+      return Class.getLevel({include: [models.subject, { model: models.student, include: models.user }]})
+      .then(data => {
+        data.students = data.students.map(student => {
+          return flatData(student, 'user');
+        });
+
+        return data;
+      });
     },
 
     timeTable: (Class, _, models) => {
@@ -475,7 +494,10 @@ export const resolvers = {
         attributes: ['id']
       }).then((data => {
         data.map(d => {
-          d.staff = flatData(d.staff, 'user');
+          if(d.staff)
+            d.staff = flatData(d.staff, 'user');
+          else
+            d.staff = null;
         });
 
         let subjects = groupBy(data, 'subject.id');
@@ -510,7 +532,7 @@ export const resolvers = {
       return models.subject.findById(subject.id,
         {
           include: {
-            model: models.staff, include: [models.user, models.staffType]
+            model: models.staff, include: [models.user, {model: models.staffType, as:'staffType'}]
           }
         }).then(subject => {
           subject.staffs.map(staff => {
@@ -814,8 +836,8 @@ export const resolvers = {
       return models.classStudentSelector.bulkCreate(data);
     },
 
-    updateStudentClass: (_, args, models) => {
-      return models.classStudentSelector.update(args, { where: { studentId: args.studentId } });
+    deleteStudentFromClass: (_, args, models) => {
+      return models.classStudentSelector.destroy({ where: args });
     },
 
     updateTimeTable: (_, args, models) => {

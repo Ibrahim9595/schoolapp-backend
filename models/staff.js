@@ -54,6 +54,6 @@ Staff.associate = (models) => {
     Staff.belongsTo(models.user);
     Staff.belongsToMany(models.subject, { through: models.specializationSelector });
     Staff.hasMany(models.classSubjectStaffSelector, {as: "timeTableElements"});
-    Staff.belongsTo(models.staffType)
+    Staff.belongsTo(models.staffType, {as: 'staffType'});
     models.classSubjectStaffSelector.belongsTo(Staff);
 };

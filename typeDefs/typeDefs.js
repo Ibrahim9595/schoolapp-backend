@@ -8,7 +8,7 @@ let Mutation = `
 
   #input type definion for parent
   input StudentInput {
-    parentId: Int
+    parentId: Int!
     levelId: Int!
   }
 
@@ -86,7 +86,7 @@ let Mutation = `
   # this schema allows the following mutation:
   type Mutation {
     createParent(user:UserInputAdd!, parent: ParentInput!): Parent!
-    createStudent(user:UserInputAdd!, student: StudentInput): Student!
+    createStudent(user:UserInputAdd!, student: StudentInput!): Student!
     createStaff(user:UserInputAdd!, staff: StaffInput!): Staff!
     updateParent(id: Int!, user: UserInputUpdate!, parent: ParentInput!): Boolean!
     updateStudent(id: Int!, user: UserInputUpdate!, student: StudentInput): Boolean!
@@ -117,8 +117,8 @@ let Mutation = `
     createSubject(subject: SubjectInput!): Subject!
     updateSubject(id: Int!, subject: SubjectInput!): Boolean!
     deleteSubject(id: Int!): Boolean!
-    appendStudentsToClass(studentsId: [Int]!, classId: Int!): Boolean!
-    updateStudentClass(studentId: Int!, classId: Int!): Boolean!
+    appendStudentsToClass(studentsId: [Int!]!, classId: Int!): Boolean!
+    deleteStudentFromClass(studentId: Int!, classId: Int!): Boolean!
     updateTimeTable(classId: Int!, subjectStaff: [subjectStaffInput!]!): Boolean!
     appendTeacherSpecialization(staffId: Int!, subjectId: Int!, rate: String): Boolean!
     createAbsenceReason(name: String!, description: String!): AbsenceReason!
@@ -209,11 +209,12 @@ export const typeDefs = `
     gender: String!
     userTypeId: Int!
     userType: String
-    parent: Parent!
+    parent: Parent
     permissionGroups: [PermissionGroup]
     permissions: [Permission]
     levelId: Int!
-    class: Class!
+    level: Level
+    class: Class
     sentMessages: [SentMessage!]!
     recievedMessages: [RecievedMessage!]!
     contactList: [User!]!

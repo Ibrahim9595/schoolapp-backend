@@ -43,5 +43,6 @@ Student.associate = (models) => {
     Student.hasMany(models.assignmentResult);
     Student.belongsTo(models.user);
     Student.belongsTo(models.parent);
+    Student.belongsTo(models.level);
     Student.belongsToMany(models.class, { through: models.classStudentSelector });
 };
