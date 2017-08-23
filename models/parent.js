@@ -18,9 +18,5 @@ export const Parent = sequelize.define('parent', {
 //Class Method
 Parent.associate = (models) => {
     Parent.belongsTo(models.user);
-    Parent.hasMany(models.student, {
-        'constraints': true,
-        'onUpdate': 'cascade',
-        'onDelete': 'cascade',
-    });
+    Parent.hasMany(models.student);
 };

@@ -8,7 +8,7 @@ let Mutation = `
 
   #input type definion for parent
   input StudentInput {
-    parentId: Int!
+    parentId: Int
     levelId: Int!
   }
 
@@ -72,7 +72,7 @@ let Mutation = `
 
   input AbsentStudent { 
     studentId: Int!
-    absenceReasonId: Int!
+    absenceReasonId: Int
     notes: String
   }
 

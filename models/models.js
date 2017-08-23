@@ -59,4 +59,4 @@ for(let i in models) {
     }
 }
 
-// sequelize.sync({force: true})
+// sequelize.sync()

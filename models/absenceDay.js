@@ -14,9 +14,29 @@ export const AbsenceDay = sequelize.define('absence_day', {
 });
 
 AbsenceDay.associate = (models) => {
-    AbsenceDay.belongsTo(models.absenceReason);
-    AbsenceDay.belongsTo(models.student);
-    AbsenceDay.belongsTo(models.staff);
-    AbsenceDay.belongsTo(models.class);
-    AbsenceDay.belongsTo(models.subject);
+    AbsenceDay.belongsTo(models.absenceReason, {
+        'constraints': true,
+        'onUpdate': 'cascade',
+        'onDelete': 'cascade'
+    });
+    AbsenceDay.belongsTo(models.student, {
+        'constraints': true,
+        'onUpdate': 'cascade',
+        'onDelete': 'cascade'
+    });
+    AbsenceDay.belongsTo(models.staff, {
+        'constraints': true,
+        'onUpdate': 'cascade',
+        'onDelete': 'cascade'
+    });
+    AbsenceDay.belongsTo(models.class, {
+        'constraints': true,
+        'onUpdate': 'cascade',
+        'onDelete': 'cascade'
+    });
+    AbsenceDay.belongsTo(models.subject, {
+        'constraints': true,
+        'onUpdate': 'cascade',
+        'onDelete': 'cascade'
+    });
 }
