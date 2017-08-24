@@ -141,7 +141,7 @@ let Mutation = `
       finalScore: Int!,
       dueDate: String!,
       notes: String
-    ): Boolean!
+    ): Assignment!
     updateAssignment(
       id: Int!,
       classId: Int,
@@ -365,6 +365,7 @@ export const typeDefs = `
   }
 
   type Assignment {
+    id: Int!
     staff: Staff!
     class: Class!
     subject: Subject!
